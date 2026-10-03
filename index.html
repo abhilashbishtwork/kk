@@ -38,12 +38,16 @@
   function hideSplash() { var s = document.getElementById('splash'); if (s) { s.style.opacity = 0; setTimeout(function () { s.remove(); }, 300); } }
   setTimeout(hideSplash, 8000);
   window.addEventListener('message', function (e) {
-    if (!/^https:\/\/[a-z0-9-]+\.googleusercontent\.com$/.test(e.origin)) return;
-    var d = e.data || {};
-    if (d.kkSet && KEYS.indexOf(d.kkSet[0]) >= 0) {
+    // only the Apps Script sandbox frame that lives INSIDE our own iframe may talk to this page
+    if (!/^https:\/\/n-[a-z0-9-]+-script\.googleusercontent\.com$/.test(e.origin)) return;
+    var app = document.getElementById('app').contentWindow, w = e.source, mine = false;
+    for (var i = 0; i < 4 && w; i++) { if (w === app) { mine = true; break; } if (w === w.parent) break; w = w.parent; }
+    if (!mine) return;
+    var d = e.data; if (!d || typeof d !== 'object') return;
+    if (Array.isArray(d.kkSet) && KEYS.indexOf(d.kkSet[0]) >= 0 && (d.kkSet[1] === null || typeof d.kkSet[1] === 'string')) {
       try { if (d.kkSet[1] === null) localStorage.removeItem(d.kkSet[0]); else localStorage.setItem(d.kkSet[0], d.kkSet[1]); } catch (x) {}
     }
-    if (d.kkGet) { setTimeout(hideSplash, 150);
+    if (Array.isArray(d.kkGet)) { setTimeout(hideSplash, 150);
       var out = {};
       d.kkGet.forEach(function (k) { if (KEYS.indexOf(k) >= 0) out[k] = get(k); });
       e.source.postMessage({ kkVals: out }, e.origin);
