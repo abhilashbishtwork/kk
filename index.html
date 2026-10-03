@@ -30,7 +30,7 @@
 <iframe id="app" title="Krispy Kreme" allow="camera *; geolocation *; clipboard-write *"></iframe>
 <script>
   var EXEC = 'https://script.google.com/macros/s/AKfycbyhuHvYbgM0jlcLgh_jwxjoc09AkN2C2gREc2ekBigV9UGBok8a11K6N4S2YlU2TvZS/exec';
-  var KEYS = ['kkAuth', 'kkBoot', 'kkToday'];
+  var KEYS = ['kkAuth', 'kkBoot', 'kkToday'], lastReload = 0;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   // the login is handed to the app by postMessage (kkGet below), never in the URL
   document.getElementById('app').src = EXEC + '?wt=1';
@@ -47,6 +47,7 @@
     if (Array.isArray(d.kkSet) && KEYS.indexOf(d.kkSet[0]) >= 0 && (d.kkSet[1] === null || typeof d.kkSet[1] === 'string')) {
       try { if (d.kkSet[1] === null) localStorage.removeItem(d.kkSet[0]); else localStorage.setItem(d.kkSet[0], d.kkSet[1]); } catch (x) {}
     }
+    if (d.kkReload === 1 && Date.now() - lastReload > 60000) { lastReload = Date.now(); document.getElementById('app').src = EXEC + '?wt=1&v=' + Date.now(); return; }   // newer app build live
     if (Array.isArray(d.kkGet)) { setTimeout(hideSplash, 150);
       var out = {};
       d.kkGet.forEach(function (k) { if (KEYS.indexOf(k) >= 0) out[k] = get(k); });
