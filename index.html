@@ -47,7 +47,7 @@
     if (Array.isArray(d.kkSet) && KEYS.indexOf(d.kkSet[0]) >= 0 && (d.kkSet[1] === null || typeof d.kkSet[1] === 'string')) {
       try { if (d.kkSet[1] === null) localStorage.removeItem(d.kkSet[0]); else localStorage.setItem(d.kkSet[0], d.kkSet[1]); } catch (x) {}
     }
-    if (d.kkReload === 1 && Date.now() - lastReload > 60000) { lastReload = Date.now(); document.getElementById('app').src = EXEC + '?wt=1&v=' + Date.now(); return; }   // newer app build live
+    if (d.kkReload === 1 && Date.now() - lastReload > 60000) { lastReload = Date.now(); var fr = document.getElementById('app'); try { fr.contentWindow.location.replace(EXEC + '?wt=1&v=' + Date.now()); } catch(e){ fr.src = EXEC + '?wt=1&v=' + Date.now(); } return; }   // newer app build live
     if (Array.isArray(d.kkGet)) { setTimeout(hideSplash, 150);
       var out = {};
       d.kkGet.forEach(function (k) { if (KEYS.indexOf(k) >= 0) out[k] = get(k); });
